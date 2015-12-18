@@ -618,55 +618,56 @@ func (r *libcontainerRuntime) createLibcontainerMount(cwd, dest string, m specs.
 
 func (rt *libcontainerRuntime) createCgroupConfig(name string, spec *specs.LinuxRuntimeSpec, devices []*configs.Device) (*configs.Cgroup, error) {
 	c := &configs.Cgroup{
-		Name:           name,
-		Parent:         "/containerd",
-		AllowedDevices: append(devices, allowedDevices...),
+		Name:   name,
+		Parent: "/containerd",
 	}
 	r := spec.Linux.Resources
-	c.Memory = int64(r.Memory.Limit)
-	c.MemoryReservation = int64(r.Memory.Reservation)
-	c.MemorySwap = int64(r.Memory.Swap)
-	c.KernelMemory = int64(r.Memory.Kernel)
-	c.MemorySwappiness = int64(r.Memory.Swappiness)
-	c.CpuShares = int64(r.CPU.Shares)
-	c.CpuQuota = int64(r.CPU.Quota)
-	c.CpuPeriod = int64(r.CPU.Period)
-	c.CpuRtRuntime = int64(r.CPU.RealtimeRuntime)
-	c.CpuRtPeriod = int64(r.CPU.RealtimePeriod)
-	c.CpusetCpus = r.CPU.Cpus
-	c.CpusetMems = r.CPU.Mems
-	c.BlkioWeight = r.BlockIO.Weight
-	c.BlkioLeafWeight = r.BlockIO.LeafWeight
+	c.Resources.AllowedDevices = append(c.Resources.AllowedDevices, devices...)
+	c.Resources.AllowedDevices = append(c.Resources.AllowedDevices, allowedDevices...)
+	c.Resources.Memory = int64(r.Memory.Limit)
+	c.Resources.MemoryReservation = int64(r.Memory.Reservation)
+	c.Resources.MemorySwap = int64(r.Memory.Swap)
+	c.Resources.KernelMemory = int64(r.Memory.Kernel)
+	c.Resources.MemorySwappiness = int64(r.Memory.Swappiness)
+	c.Resources.CpuShares = int64(r.CPU.Shares)
+	c.Resources.CpuQuota = int64(r.CPU.Quota)
+	c.Resources.CpuPeriod = int64(r.CPU.Period)
+	c.Resources.CpuRtRuntime = int64(r.CPU.RealtimeRuntime)
+	c.Resources.CpuRtPeriod = int64(r.CPU.RealtimePeriod)
+	c.Resources.CpusetCpus = r.CPU.Cpus
+	c.Resources.CpusetMems = r.CPU.Mems
+	c.Resources.BlkioWeight = r.BlockIO.Weight
+	c.Resources.BlkioLeafWeight = r.BlockIO.LeafWeight
 	for _, wd := range r.BlockIO.WeightDevice {
 		weightDevice := configs.NewWeightDevice(wd.Major, wd.Minor, wd.Weight, wd.LeafWeight)
-		c.BlkioWeightDevice = append(c.BlkioWeightDevice, weightDevice)
+		c.Resources.BlkioWeightDevice = append(c.Resources.BlkioWeightDevice, weightDevice)
 	}
 	for _, td := range r.BlockIO.ThrottleReadBpsDevice {
 		throttleDevice := configs.NewThrottleDevice(td.Major, td.Minor, td.Rate)
-		c.BlkioThrottleReadBpsDevice = append(c.BlkioThrottleReadBpsDevice, throttleDevice)
+		c.Resources.BlkioThrottleReadBpsDevice = append(c.Resources.BlkioThrottleReadBpsDevice, throttleDevice)
 	}
 	for _, td := range r.BlockIO.ThrottleWriteBpsDevice {
 		throttleDevice := configs.NewThrottleDevice(td.Major, td.Minor, td.Rate)
-		c.BlkioThrottleWriteBpsDevice = append(c.BlkioThrottleWriteBpsDevice, throttleDevice)
+		c.Resources.BlkioThrottleWriteBpsDevice = append(c.Resources.BlkioThrottleWriteBpsDevice, throttleDevice)
 	}
 	for _, td := range r.BlockIO.ThrottleReadIOPSDevice {
 		throttleDevice := configs.NewThrottleDevice(td.Major, td.Minor, td.Rate)
-		c.BlkioThrottleReadIOPSDevice = append(c.BlkioThrottleReadIOPSDevice, throttleDevice)
+		c.Resources.BlkioThrottleReadIOPSDevice = append(c.Resources.BlkioThrottleReadIOPSDevice, throttleDevice)
 	}
 	for _, td := range r.BlockIO.ThrottleWriteIOPSDevice {
 		throttleDevice := configs.NewThrottleDevice(td.Major, td.Minor, td.Rate)
-		c.BlkioThrottleWriteIOPSDevice = append(c.BlkioThrottleWriteIOPSDevice, throttleDevice)
+		c.Resources.BlkioThrottleWriteIOPSDevice = append(c.Resources.BlkioThrottleWriteIOPSDevice, throttleDevice)
 	}
 	for _, l := range r.HugepageLimits {
-		c.HugetlbLimit = append(c.HugetlbLimit, &configs.HugepageLimit{
+		c.Resources.HugetlbLimit = append(c.Resources.HugetlbLimit, &configs.HugepageLimit{
 			Pagesize: l.Pagesize,
 			Limit:    l.Limit,
 		})
 	}
-	c.OomKillDisable = r.DisableOOMKiller
-	c.NetClsClassid = r.Network.ClassID
+	c.Resources.OomKillDisable = r.DisableOOMKiller
+	c.Resources.NetClsClassid = r.Network.ClassID
 	for _, m := range r.Network.Priorities {
-		c.NetPrioIfpriomap = append(c.NetPrioIfpriomap, &configs.IfPrioMap{
+		c.Resources.NetPrioIfpriomap = append(c.Resources.NetPrioIfpriomap, &configs.IfPrioMap{
 			Interface: m.Name,
 			Priority:  int64(m.Priority),
 		})
