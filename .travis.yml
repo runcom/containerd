@@ -22,7 +22,7 @@ env:
 install:
   - hack/install-seccomp.sh
   - hack/install-runc.sh
-  - go get -u github.com/golang/lint/golint
+  - go get -u golang.org/x/lint/golint
 
 script:
   - make all
